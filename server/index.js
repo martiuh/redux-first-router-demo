@@ -13,7 +13,7 @@ const DEV = process.env.NODE_ENV === 'development'
 const publicPath = clientConfig.output.publicPath
 const outputPath = clientConfig.output.path
 const app = express()
-
+app.set('view engine', 'ejs') // Important for using with template.ejs
 // JWTOKEN COOKIE - in a real app obviously you set this after signup/login:
 
 app.use(cookieParser())
@@ -56,8 +56,7 @@ if (DEV) {
     // keeps serverRender updated with arg: { clientStats, outputPath }
     webpackHotServerMiddleware(multiCompiler, {
       serverRendererOptions: { outputPath }
-    })
-  )
+    }))
 }
 else {
   const clientStats = require('../buildClient/stats.json') // eslint-disable-line import/no-unresolved

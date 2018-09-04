@@ -3,6 +3,8 @@ const webpack = require('webpack')
 const WriteFilePlugin = require('write-file-webpack-plugin')
 const AutoDllPlugin = require('autodll-webpack-plugin')
 const ExtractCssChunks = require('extract-css-chunks-webpack-plugin')
+const HtmlWebpackPlugin = require('html-webpack-plugin')
+const FaviconstWebpackPlugin = require('favicons-webpack-plugin')
 
 module.exports = {
   name: 'client',
@@ -49,6 +51,19 @@ module.exports = {
   plugins: [
     new WriteFilePlugin(), // used so you can see what chunks are produced in dev
     new ExtractCssChunks(),
+    new HtmlWebpackPlugin({
+      template: `!!raw-loader!${path.join(__dirname, '../server/template.ejs')}`,
+      filename: 'render.ejs',
+      inject: true,
+      chunks: [] // The chunks are already loaded with flushChunks
+    }),
+    new FaviconstWebpackPlugin({
+      logo: path.join(__dirname, '../logo.png'),
+      inject: true,
+      background: '#DB157F',
+      prefix: '',
+      title: 'Redux First Router Demo'
+    }),
     new webpack.optimize.CommonsChunkPlugin({
       names: ['bootstrap'], // needed to put webpack bootstrap code before chunks
       filename: '[name].js',
@@ -65,6 +80,7 @@ module.exports = {
     new AutoDllPlugin({
       context: path.join(__dirname, '..'),
       filename: '[name].js',
+      inject: true,
       entry: {
         vendor: [
           'react',

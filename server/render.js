@@ -6,7 +6,7 @@ import flushChunks from 'webpack-flush-chunks'
 import configureStore from './configureStore'
 import App from '../src/components/App'
 
-export default ({ clientStats }) => async (req, res, next) => {
+export default ({ clientStats }) => async (req, res) => {
   const store = await configureStore(req, res)
   if (!store) return // no store means redirect was already served
 
@@ -19,27 +19,17 @@ export default ({ clientStats }) => async (req, res, next) => {
   console.log('REQUESTED PATH:', req.path)
   console.log('CHUNK NAMES', chunkNames)
 
-  return res.send(
-    `<!doctype html>
-      <html>
-        <head>
-          <meta charset="utf-8">
-          <title>redux-first-router-demo</title>
-          ${styles}
-          <link rel="stylesheet prefetch" href="http://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
-        </head>
-        <body>
-          <script>window.REDUX_STATE = ${stateJson}</script>
-          <div id="root">${appString}</div>
-          ${cssHash}
-          <script type='text/javascript' src='/static/vendor.js'></script>
-          ${js}
-        </body>
-      </html>`
-  )
+  res.render('../buildClient/render.ejs', {
+    js,
+    styles,
+    cssHash,
+    appString,
+    stateJson: `<script>window.REDUX_STATE=${stateJson}</script>`
+  })
 }
 
-const createApp = (App, store) =>
+const createApp = (App, store) => (
   <Provider store={store}>
     <App />
   </Provider>
+)

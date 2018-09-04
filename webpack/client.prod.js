@@ -3,6 +3,8 @@ const webpack = require('webpack')
 const ExtractCssChunks = require('extract-css-chunks-webpack-plugin')
 const StatsPlugin = require('stats-webpack-plugin')
 const AutoDllPlugin = require('autodll-webpack-plugin')
+const HtmlWebpackPlugin = require('html-webpack-plugin')
+const FaviconstWebpackPlugin = require('favicons-webpack-plugin')
 
 module.exports = {
   name: 'client',
@@ -45,6 +47,19 @@ module.exports = {
   },
   plugins: [
     new StatsPlugin('stats.json'),
+    new HtmlWebpackPlugin({
+      template: `!!raw-loader!${path.join(__dirname, '../server/template.ejs')}`,
+      filename: 'render.ejs',
+      inject: true,
+      chunks: [] // The chunks are already loaded with flushChunks
+    }),
+    new FaviconstWebpackPlugin({
+      logo: path.join(__dirname, '../logo.png'),
+      inject: true,
+      background: '#DB157F',
+      prefix: '',
+      title: 'Redux First Router Demo'
+    }),
     new ExtractCssChunks(),
     new webpack.optimize.CommonsChunkPlugin({
       names: ['bootstrap'], // needed to put webpack bootstrap code before chunks
@@ -74,7 +89,8 @@ module.exports = {
     new webpack.HashedModuleIdsPlugin(), // not needed for strategy to work (just good practice)
     new AutoDllPlugin({
       context: path.join(__dirname, '..'),
-      filename: '[name].js',
+      inject: true,
+      filename: '[name].[chunkhash].js', // My vendor now can be cached
       entry: {
         vendor: [
           'react',
